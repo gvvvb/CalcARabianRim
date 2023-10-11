@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 public class Main {
 
-
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         System.out.println("Введите пример разделяя символы пробелом: ");
@@ -33,13 +32,13 @@ public class Main {
         String operator = parts[1];
         String secondNumber = parts[2];
 
-        if (!isValidInput(firstNumber, operator, secondNumber)) {
-            throw new IllegalArgumentException(" Неправильный формат ввода ");
-        }
-
         boolean isRomanInput = isRomanNumber(firstNumber) && isRomanNumber(secondNumber);
         int firstNumberCorp = isRomanInput ? Roman.convert(firstNumber) : Integer.parseInt(firstNumber);
         int secondNumberCorp = isRomanInput ? Roman.convert(secondNumber) : Integer.parseInt(secondNumber);
+
+        if (!isValidInput(firstNumberCorp, operator, secondNumberCorp)) {
+            throw new IllegalArgumentException("Числа должны быть в диапазоне от 1 до 10");
+        }
 
         int result;
         switch (operator) {
@@ -53,7 +52,7 @@ public class Main {
                 result = firstNumberCorp * secondNumberCorp;
                 break;
             case "/":
-                if (secondNumberCorp == 0) {
+                if (secondNumberCorp == 0 || "0".equals(secondNumber)) {
                     throw new ArithmeticException("Деление на ноль");
                 }
                 result = firstNumberCorp / secondNumberCorp;
@@ -66,8 +65,8 @@ public class Main {
             if (result <= 0) {
                 throw new IllegalArgumentException("Результат должен быть положительным римским числом.");
             }
-            if (result > 10) {
-                throw new IllegalArgumentException("Результат превышает 10 в римской нотации.");
+            if (result >= 3990) {
+                throw new IllegalArgumentException("Результат превышает 3990 в римской нотации.");
             }
             return Roman.toRoman(result);
         } else {
@@ -75,17 +74,8 @@ public class Main {
         }
     }
 
-    public static boolean isValidInput(String firstNumber, String operator, String secondNumber) {
-        return (isNumberValid(firstNumber) && isNumberValid(secondNumber) && isOperatorValid(operator));
-    }
-
-    public static boolean isNumberValid(String number) {
-        try {
-            int arabic = Integer.parseInt(number);
-            return arabic >= 1 && arabic <= 10;
-        } catch (NumberFormatException e) {
-            return isRomanNumber(number);
-        }
+    public static boolean isValidInput(int firstNumber, String operator, int secondNumber) {
+        return firstNumber >= 1 && firstNumber <= 10 && secondNumber >= 1 && secondNumber <= 10 && isOperatorValid(operator);
     }
 
     public static boolean isOperatorValid(String operator) {
