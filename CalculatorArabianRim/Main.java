@@ -13,7 +13,7 @@ public class Main {
             String output = calc(input);
             System.out.println("Ответ: " + output);
         } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
+            throw new IllegalArgumentException("Ошибка: " + e.getMessage());
         }
 
         // Ждем, пока пользователь нажмет Enter
@@ -32,14 +32,17 @@ public class Main {
         String operator = parts[1];
         String secondNumber = parts[2];
 
-        boolean isRomanInput = isRomanNumber(firstNumber) && isRomanNumber(secondNumber);
-        int firstNumberCorp = isRomanInput ? Roman.convert(firstNumber) : Integer.parseInt(firstNumber);
-        int secondNumberCorp = isRomanInput ? Roman.convert(secondNumber) : Integer.parseInt(secondNumber);
-
-        if (!isValidInput(firstNumberCorp, operator, secondNumberCorp)) {
-            throw new IllegalArgumentException("Числа должны быть в диапазоне от 1 до 10");
+        if (!isValidInput(firstNumber, operator, secondNumber)) {
+            throw new IllegalArgumentException("Некорректные данные");
         }
 
+        // Проверка нотаций
+        if ((isRomanNumber(firstNumber) && !isRomanNumber(secondNumber)) ||
+                (!isRomanNumber(firstNumber) && isRomanNumber(secondNumber))) {
+            throw new IllegalArgumentException("Нельзя сочетать римские и арабские числа");
+        }
+        int firstNumberCorp = isRomanNumber(firstNumber) ? Roman.convert(firstNumber) : Integer.parseInt(firstNumber);
+        int secondNumberCorp = isRomanNumber(secondNumber) ? Roman.convert(secondNumber) : Integer.parseInt(secondNumber);
         int result;
         switch (operator) {
             case "+":
@@ -52,34 +55,38 @@ public class Main {
                 result = firstNumberCorp * secondNumberCorp;
                 break;
             case "/":
-                if (secondNumberCorp == 0 || "0".equals(secondNumber)) {
-                    throw new ArithmeticException("Деление на ноль");
+                if (secondNumberCorp == 0) {
+                    throw new IllegalArgumentException("Деление на ноль");
                 }
                 result = firstNumberCorp / secondNumberCorp;
                 break;
             default:
                 throw new IllegalArgumentException("Неправильный оператор");
         }
-
-        if (isRomanInput) {
-            if (result <= 0) {
-                throw new IllegalArgumentException("Результат должен быть положительным римским числом.");
-            }
-            if (result >= 3990) {
-                throw new IllegalArgumentException("Результат превышает 3990 в римской нотации.");
+        if (isRomanNumber(firstNumber) && isRomanNumber(secondNumber)) {
+            if (result <= 0 || result >= 3990) {
+                throw new IllegalArgumentException("Результат в римской нотации должен быть в диапазоне I до MMMCMXCIX");
             }
             return Roman.toRoman(result);
         } else {
-            return Integer.toString(result);
+            if (result < 1 || result > 10) {
+                throw new IllegalArgumentException("Результат должен быть в диапазоне от 1 до 10");
+            }
+            return String.valueOf(result);
         }
     }
-
-    public static boolean isValidInput(int firstNumber, String operator, int secondNumber) {
-        return firstNumber >= 1 && firstNumber <= 10 && secondNumber >= 1 && secondNumber <= 10 && isOperatorValid(operator);
+    public static boolean isValidInput(String firstNumber, String operator, String secondNumber) {
+        return (isRomanNumber(firstNumber) || isInteger(firstNumber)) &&
+                (isRomanNumber(secondNumber) || isInteger(secondNumber)) &&
+                "+".equals(operator) || "-".equals(operator) || "*".equals(operator) || "/".equals(operator);
     }
-
-    public static boolean isOperatorValid(String operator) {
-        return "+".equals(operator) || "-".equals(operator) || "*".equals(operator) || "/".equals(operator);
+    public static boolean isInteger(String input) {
+        try {
+            int number = Integer.parseInt(input);
+            return number >= 1 && number <= 10;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public static boolean isRomanNumber(String number) {
