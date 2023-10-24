@@ -42,7 +42,7 @@ public class Roman {
     }
 
     public static String toRoman(int number) {
-        if (number < 1 || number > 10) {
+        if (number < 1 || number > 100) {
             throw new IllegalArgumentException("Число должно быть от 1 до 10.");
         }
 
