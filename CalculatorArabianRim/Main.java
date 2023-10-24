@@ -69,8 +69,8 @@ public class Main {
             }
             return Roman.toRoman(result);
         } else {
-            if (result < 1 || result > 10) {
-                throw new IllegalArgumentException("Результат должен быть в диапазоне от 1 до 10");
+            if (result < 1 || result > 1000000 {
+                throw new IllegalArgumentException("Результат должен быть в диапазоне от 1 до 1000000");
             }
             return String.valueOf(result);
         }
